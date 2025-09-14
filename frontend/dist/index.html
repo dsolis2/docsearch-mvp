@@ -1,0 +1,222 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RAG Chat Demo</title><style>/* Global styles */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f7fa;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #2563eb;
+        }
+
+        .demo-section {
+            margin-bottom: 3rem;
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .demo-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+
+        .demo-description {
+            color: #64748b;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .chat-container {
+            height: 500px;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .controls {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .config-panel {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .config-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+            align-items: center;
+        }
+
+        .config-row label {
+            min-width: 120px;
+            font-weight: 500;
+        }
+
+        .config-row select,
+        .config-row input {
+            padding: 0.375rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+        }
+
+        .status {
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .status.connected {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .status.disconnected {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .status.connecting {
+            background: #fef3c7;
+            color: #d97706;
+            border: 1px solid #fed7aa;
+        }
+
+        /* Component demonstration styles */
+        .component-grid {
+            display: grid;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .individual-component {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+
+        .component-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+
+        /* Responsive design */
+        @media (min-width: 768px) {
+            .component-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .component-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }</style><script defer="defer" src="rag-chat.d8519f2b5ea205881881.js"></script></head><body><div class="container"><h1>RAG Chat System</h1><div class="demo-section"><div class="demo-title">AI Document Assistant</div><div class="demo-description">Chat with our AI assistant powered by GPT-4o-mini and LlamaIndex. Ask questions about the indexed documents and get responses with source citations.</div><div class="config-panel"><div class="config-row"><label>Backend URL:</label> <input id="backendUrl" value="ws://localhost:8000/ws" placeholder="WebSocket URL"></div><div class="config-row"><label>Model:</label> <span style="color: #64748b;">GPT-4o-mini (Fixed)</span></div></div><div class="chat-container"><rag-chat-interface id="mainChatInterface"></rag-chat-interface></div><div class="controls"><button class="btn" onclick="clearMessages()">Clear Messages</button> <button class="btn btn-secondary" onclick="toggleCitations()">Toggle Citations</button> <button class="btn btn-secondary" onclick="exportSession()">Export Session</button></div><div id="connectionStatus" class="status disconnected">Status: Disconnected</div></div></div><script src="/rag-chat.js"></script><script>// Core functionality
+        function clearMessages() {
+            const chatInterface = document.getElementById('mainChatInterface');
+            if (chatInterface) {
+                chatInterface.clearMessages();
+            }
+        }
+
+        function toggleCitations() {
+            const chatInterface = document.getElementById('mainChatInterface');
+            if (chatInterface) {
+                // Toggle citation panel visibility
+                const citationPanel = chatInterface.querySelector('rag-citation-panel');
+                if (citationPanel) {
+                    const isVisible = citationPanel.style.display !== 'none';
+                    citationPanel.style.display = isVisible ? 'none' : 'block';
+                }
+            }
+        }
+
+        function exportSession() {
+            const chatInterface = document.getElementById('mainChatInterface');
+            if (chatInterface) {
+                const messages = chatInterface.getMessages();
+                const sessionData = {
+                    sessionId: chatInterface.getSessionId(),
+                    messages: messages,
+                    exportedAt: new Date().toISOString()
+                };
+                
+                // Download as JSON
+                const blob = new Blob([JSON.stringify(sessionData, null, 2)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `chat-session-${sessionData.sessionId}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        // Listen for RAG Chat events
+        document.addEventListener('ragchat:ready', function(event) {
+            console.log('RAG Chat is ready:', event.detail);
+            document.getElementById('connectionStatus').textContent = 'Status: Ready';
+            document.getElementById('connectionStatus').className = 'status connected';
+        });
+
+        document.addEventListener('ragchat:message-send', function(event) {
+            console.log('Message sent:', event.detail);
+        });
+
+        document.addEventListener('ragchat:citation-click', function(event) {
+            console.log('Citation clicked:', event.detail);
+            // You can add custom handling for citation clicks here
+        });</script></body></html>
