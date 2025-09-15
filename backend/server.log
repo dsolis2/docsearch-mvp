@@ -1,0 +1,82 @@
+INFO:     Will watch for changes in these directories: ['/Users/jdhiman/Documents/aidevcamp/docsearch-mvp/backend']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [11773] using WatchFiles
+INFO:     Started server process [11838]
+INFO:     Waiting for application startup.
+2025-09-14 19:57:08,496 - app.main - INFO - Starting RAG Chat API server...
+2025-09-14 19:57:13,795 - app.services.vector_service - INFO - Connected to PostgreSQL: PostgreSQL 14.18 (Homebrew) on x86_64-apple-darwin...
+2025-09-14 19:57:13,797 - app.services.vector_service - INFO - pgvector extension confirmed
+2025-09-14 19:57:13,797 - app.services.vector_service - WARNING - No VoyageAI API key provided for embeddings
+2025-09-14 19:57:13,806 - app.services.vector_service - INFO - Database schema verified: chunks, documents, embeddings
+2025-09-14 19:57:13,807 - app.services.vector_service - INFO - Vector service initialized successfully
+2025-09-14 19:57:13,807 - app.services.llm_service - INFO - OpenAI GPT-4o-mini provider initialized
+2025-09-14 19:57:13,807 - app.services.llm_service - INFO - Default LLM set to: gpt-4o-mini
+2025-09-14 19:57:13,808 - app.services.llm_service - INFO - LLM Service initialized with 1 providers
+2025-09-14 19:57:13,808 - app.main - INFO - Services initialized successfully
+INFO:     Application startup complete.
+INFO:     127.0.0.1:52801 - "WebSocket /ws/session-6kzmp5dw9" [accepted]
+2025-09-14 19:57:13,897 - app.websockets.session_manager - INFO - WebSocket connected for session session-6kzmp5dw9
+INFO:     connection open
+INFO:     127.0.0.1:52799 - "WebSocket /ws/session-1vy6vhe6g" [accepted]
+2025-09-14 19:57:15,103 - app.websockets.session_manager - INFO - WebSocket connected for session session-1vy6vhe6g
+INFO:     connection open
+INFO:     127.0.0.1:52806 - "WebSocket /ws/session-0pusxfeir" [accepted]
+2025-09-14 19:57:15,382 - app.websockets.session_manager - INFO - WebSocket connected for session session-0pusxfeir
+INFO:     connection open
+2025-09-14 19:57:23,145 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:52812 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52828 - "WebSocket /ws/session-lgqcmkdvv" [accepted]
+2025-09-14 19:57:50,374 - app.websockets.session_manager - INFO - WebSocket connected for session session-lgqcmkdvv
+INFO:     connection open
+2025-09-14 20:03:17,818 - app.websockets.session_manager - INFO - WebSocket disconnected for session session-1vy6vhe6g
+INFO:     connection closed
+2025-09-14 20:03:18,013 - app.websockets.session_manager - INFO - WebSocket disconnected for session session-0pusxfeir
+INFO:     connection closed
+2025-09-14 20:08:51,936 - app.websockets.session_manager - INFO - WebSocket disconnected for session session-lgqcmkdvv
+INFO:     connection closed
+2025-09-14 20:10:08,995 - app.websockets.session_manager - INFO - WebSocket disconnected for session session-6kzmp5dw9
+INFO:     connection closed
+INFO:     127.0.0.1:53072 - "WebSocket /ws/session-2manlfk4r" [accepted]
+2025-09-14 20:10:13,850 - app.websockets.session_manager - INFO - WebSocket connected for session session-2manlfk4r
+INFO:     connection open
+2025-09-14 20:11:56,238 - app.websockets.session_manager - INFO - WebSocket disconnected for session session-2manlfk4r
+INFO:     connection closed
+INFO:     127.0.0.1:53077 - "WebSocket /ws/session-wzyx61xmx" [accepted]
+2025-09-14 20:11:56,465 - app.websockets.session_manager - INFO - WebSocket connected for session session-wzyx61xmx
+INFO:     connection open
+2025-09-14 20:12:12,146 - app.websockets.session_manager - INFO - WebSocket disconnected for session session-wzyx61xmx
+INFO:     connection closed
+INFO:     127.0.0.1:53082 - "WebSocket /ws/session-jx4gqodw8" [accepted]
+2025-09-14 20:12:12,281 - app.websockets.session_manager - INFO - WebSocket connected for session session-jx4gqodw8
+INFO:     connection open
+2025-09-14 20:12:25,869 - app.websockets.session_manager - INFO - WebSocket disconnected for session session-jx4gqodw8
+INFO:     connection closed
+INFO:     127.0.0.1:53086 - "WebSocket /ws/session-jtb0f8pr1" [accepted]
+2025-09-14 20:12:25,973 - app.websockets.session_manager - INFO - WebSocket connected for session session-jtb0f8pr1
+INFO:     connection open
+2025-09-14 20:12:40,435 - app.websockets.session_manager - INFO - WebSocket disconnected for session session-jtb0f8pr1
+INFO:     connection closed
+INFO:     127.0.0.1:53090 - "WebSocket /ws/session-vwvg1tg4o" [accepted]
+2025-09-14 20:12:40,572 - app.websockets.session_manager - INFO - WebSocket connected for session session-vwvg1tg4o
+INFO:     connection open
+INFO:     127.0.0.1:53095 - "WebSocket /ws/session-cj8sdc5df" [accepted]
+2025-09-14 20:12:53,414 - app.websockets.session_manager - INFO - WebSocket connected for session session-cj8sdc5df
+INFO:     connection open
+2025-09-14 20:21:09,539 - app.websockets.session_manager - INFO - WebSocket disconnected for session session-cj8sdc5df
+INFO:     connection closed
+INFO:     127.0.0.1:53303 - "WebSocket /ws/session-y3nnxf6wl" [accepted]
+2025-09-14 20:21:20,374 - app.websockets.session_manager - INFO - WebSocket connected for session session-y3nnxf6wl
+INFO:     connection open
+INFO:     Shutting down
+2025-09-14 20:21:30,297 - app.websockets.session_manager - INFO - WebSocket disconnected for session session-vwvg1tg4o
+2025-09-14 20:21:30,299 - app.websockets.session_manager - INFO - WebSocket disconnected for session session-y3nnxf6wl
+INFO:     connection closed
+INFO:     connection closed
+INFO:     Waiting for application shutdown.
+2025-09-14 20:21:30,397 - app.main - INFO - Shutting down RAG Chat API server...
+2025-09-14 20:21:30,404 - app.services.vector_service - INFO - Vector service cleaned up
+2025-09-14 20:21:30,405 - app.services.llm_service - INFO - LLM Service cleaned up
+2025-09-14 20:21:30,405 - app.main - INFO - Services cleaned up successfully
+INFO:     Application shutdown complete.
+INFO:     Finished server process [11838]
+INFO:     Stopping reloader process [11773]

@@ -299,10 +299,15 @@ export class RAGInputForm extends HTMLElement {
   
   private handleSubmit() {
     const message = this.textarea.value.trim();
+    console.log('InputForm: handleSubmit called with message:', message);
+    console.log('InputForm: isEnabled:', this.isEnabled, 'isSubmitting:', this.isSubmitting);
     
     if (!message || !this.isEnabled || this.isSubmitting) {
+      console.log('InputForm: Submit blocked - no message or disabled or submitting');
       return;
     }
+    
+    console.log('InputForm: Proceeding with submit');
     
     // Set loading state
     this.setSubmitting(true);
@@ -310,8 +315,10 @@ export class RAGInputForm extends HTMLElement {
     // Emit the message event
     const event = new CustomEvent('rag-message-send', {
       detail: { message },
-      bubbles: true
+      bubbles: true,
+      composed: true  // Allow event to cross shadow DOM boundaries
     });
+    console.log('InputForm: Dispatching rag-message-send event:', event);
     this.dispatchEvent(event);
     
     // Clear the input
@@ -388,4 +395,6 @@ export class RAGInputForm extends HTMLElement {
 }
 
 // Register the custom element
-customElements.define('rag-input-form', RAGInputForm);
+if (!customElements.get('rag-input-form')) {
+  customElements.define('rag-input-form', RAGInputForm);
+}

@@ -19,5 +19,7 @@ export declare class RAGMessageList extends HTMLElement {
     clearMessages(): void;
     getMessages(): Message[];
     streamMessageUpdate(messageId: string, contentDelta: string): void;
+    updateStreamingMessage(messageId: string, contentDelta: string): void;
+    completeMessage(messageId: string): void;
 }
 //# sourceMappingURL=message-list.d.ts.map

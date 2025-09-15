@@ -163,18 +163,24 @@ export class RAGChatInterface extends HTMLElement {
   }
   
   private setupEventListeners() {
+    console.log('ChatInterface: Setting up event listeners');
+    
     // Listen for message events from input form
     this.addEventListener('rag-message-send', this.handleMessageSend.bind(this) as EventListener);
+    console.log('ChatInterface: Added rag-message-send listener');
     
     // Listen for citation events from message list
     this.addEventListener('rag-citations-received', this.handleCitationsReceived.bind(this) as EventListener);
+    console.log('ChatInterface: Added rag-citations-received listener');
     
     // Listen for WebSocket connection events
     this.addEventListener('rag-connection-status', this.handleConnectionStatus.bind(this) as EventListener);
+    console.log('ChatInterface: Added rag-connection-status listener');
   }
   
   private handleMessageSend(event: CustomEvent) {
     const { message } = event.detail;
+    console.log('ChatInterface: Handling message send:', message);
     
     // Add user message immediately
     const userMessage: Message = {
@@ -185,6 +191,7 @@ export class RAGChatInterface extends HTMLElement {
       status: 'sent'
     };
     
+    console.log('ChatInterface: Adding user message:', userMessage);
     this.addMessage(userMessage);
     
     // Create placeholder for assistant response
@@ -196,9 +203,10 @@ export class RAGChatInterface extends HTMLElement {
       status: 'streaming'
     };
     
+    console.log('ChatInterface: Adding assistant message:', assistantMessage);
     this.addMessage(assistantMessage);
     
-    // Send to backend (will be implemented in Phase 2)
+    // Send to backend
     this.sendToBackend(message, assistantMessage.id);
   }
   
@@ -220,9 +228,14 @@ export class RAGChatInterface extends HTMLElement {
   }
   
   private addMessage(message: Message) {
+    console.log('ChatInterface: addMessage called with:', message);
+    console.log('ChatInterface: messageList exists?', !!this.messageList);
     this.messages.push(message);
     if (this.messageList) {
+      console.log('ChatInterface: Calling addMessage on messageList');
       (this.messageList as any).addMessage(message);
+    } else {
+      console.error('ChatInterface: messageList is not available!');
     }
   }
   
@@ -238,9 +251,7 @@ export class RAGChatInterface extends HTMLElement {
     }
     
     // Enable/disable input based on connection
-    if (this.inputForm) {
-      (this.inputForm as any).setEnabled(this._isConnected);
-    }
+    this.updateInputFormState();
   }
   
   private sendToBackend(message: string, messageId: string) {
@@ -275,8 +286,19 @@ export class RAGChatInterface extends HTMLElement {
     
     this.wsClient.on('messageChunk', (data) => {
       // Handle streaming message updates
-      if (this.messageList) {
-        (this.messageList as any).updateStreamingMessage(data.messageId, data.chunk);
+      console.log('ChatInterface: messageChunk event received:', data);
+      
+      // Find the last assistant message (the one we're streaming to)
+      const lastAssistantMessage = [...this.messages].reverse().find(m => m.role === 'assistant' && m.status === 'streaming');
+      
+      if (lastAssistantMessage && this.messageList) {
+        console.log('ChatInterface: Updating assistant message:', lastAssistantMessage.id, 'with chunk:', data.chunk);
+        // Use the correct assistant message ID from our messages array
+        (this.messageList as any).updateStreamingMessage(lastAssistantMessage.id, data.chunk);
+        
+        // Note: Don't update local message content here as streamMessageUpdate handles it
+      } else {
+        console.warn('ChatInterface: No streaming assistant message found or messageList not available');
       }
     });
     
@@ -317,6 +339,15 @@ export class RAGChatInterface extends HTMLElement {
     }
   }
   
+  private updateInputFormState() {
+    // Wait for the input form element to be fully initialized
+    setTimeout(() => {
+      if (this.inputForm && typeof (this.inputForm as any).setEnabled === 'function') {
+        (this.inputForm as any).setEnabled(this._isConnected);
+      }
+    }, 100);
+  }
+  
   private cleanup() {
     // Clean up WebSocket connection
     if (this.wsClient) {
@@ -345,4 +376,6 @@ export class RAGChatInterface extends HTMLElement {
 }
 
 // Register the custom element
-customElements.define('rag-chat-interface', RAGChatInterface);
+if (!customElements.get('rag-chat-interface')) {
+  customElements.define('rag-chat-interface', RAGChatInterface);
+}

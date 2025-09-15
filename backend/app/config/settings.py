@@ -22,11 +22,19 @@ class Settings(BaseSettings):
     # API Keys
     openai_api_key: Optional[str] = Field(default=None, description="OpenAI API key")
     anthropic_api_key: Optional[str] = Field(default=None, description="Anthropic API key")
+    voyage_api_key: Optional[str] = Field(default=None, description="VoyageAI API key for embeddings")
+    
+    # PostgreSQL Configuration
+    database_url: str = Field(default="postgresql://localhost/docsearch_rag", description="PostgreSQL database URL")
     
     # Weaviate Configuration
-    weaviate_url: str = Field(default="http://localhost:8080", description="Weaviate instance URL")
+    weaviate_url: Optional[str] = Field(default=None, description="Weaviate instance URL")
     weaviate_api_key: Optional[str] = Field(default=None, description="Weaviate API key")
     weaviate_class_name: str = Field(default="Documents", description="Weaviate class name")
+    
+    # Embedding Configuration
+    embedding_model: str = Field(default="voyage-2", description="Embedding model name")
+    embedding_dimension: int = Field(default=1024, description="Embedding vector dimension")
     
     # LLM Configuration
     default_llm_provider: str = Field(default="openai", description="Default LLM provider")
@@ -76,6 +84,35 @@ LLM_MODELS = {
     }
 }
 
+# Weaviate Schema Configuration
+WEAVIATE_SCHEMA = {
+    "class": "Documents",
+    "description": "Document chunks for RAG search",
+    "properties": [
+        {
+            "name": "content",
+            "dataType": ["text"],
+            "description": "The document content"
+        },
+        {
+            "name": "source_file_name",
+            "dataType": ["string"],
+            "description": "Source file name"
+        },
+        {
+            "name": "chunk_id",
+            "dataType": ["string"],
+            "description": "Chunk identifier"
+        },
+        {
+            "name": "metadata",
+            "dataType": ["object"],
+            "description": "Additional metadata"
+        }
+    ],
+    "vectorizer": "none"
+}
+
 
 def get_model_config(provider: str, model: str) -> dict:
     """Get configuration for a specific model."""
@@ -85,65 +122,3 @@ def get_model_config(provider: str, model: str) -> dict:
 def validate_llm_config(provider: str, model: str) -> bool:
     """Validate if LLM provider and model combination is supported."""
     return provider in LLM_MODELS and model in LLM_MODELS[provider]
-
-
-# Weaviate schema configuration
-WEAVIATE_SCHEMA = {
-    "class": settings.weaviate_class_name,
-    "description": "Document chunks for RAG system",
-    "vectorizer": "text2vec-openai",
-    "moduleConfig": {
-        "text2vec-openai": {
-            "model": "ada-002",
-            "modelVersion": "002",
-            "type": "text"
-        }
-    },
-    "properties": [
-        {
-            "name": "content",
-            "dataType": ["text"],
-            "description": "The actual content/text of the document chunk"
-        },
-        {
-            "name": "source_file_id",
-            "dataType": ["text"],
-            "description": "Google Drive file ID or unique file identifier"
-        },
-        {
-            "name": "source_file_url",
-            "dataType": ["text"],
-            "description": "URL to access the source file"
-        },
-        {
-            "name": "source_file_name",
-            "dataType": ["text"],
-            "description": "Original filename"
-        },
-        {
-            "name": "chunk_index",
-            "dataType": ["int"],
-            "description": "Index of this chunk within the document"
-        },
-        {
-            "name": "page_number",
-            "dataType": ["int"],
-            "description": "Page number if applicable"
-        },
-        {
-            "name": "metadata",
-            "dataType": ["object"],
-            "description": "Additional metadata about the document"
-        },
-        {
-            "name": "created_at",
-            "dataType": ["date"],
-            "description": "When this chunk was created"
-        },
-        {
-            "name": "updated_at",
-            "dataType": ["date"],
-            "description": "When this chunk was last updated"
-        }
-    ]
-}

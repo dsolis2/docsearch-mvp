@@ -18,6 +18,7 @@ export declare class WebSocketClient {
     sendChatMessage(message: string, sessionId?: string): boolean;
     private handleMessage;
     private handleMessageStart;
+    private handleTypingStop;
     private handleMessageChunk;
     private handleMessageComplete;
     private handleCitations;

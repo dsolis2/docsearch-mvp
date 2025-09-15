@@ -23,6 +23,7 @@ export declare class RAGChatInterface extends HTMLElement {
     private sendToBackend;
     private setupWebSocketListeners;
     private connectWebSocket;
+    private updateInputFormState;
     private cleanup;
     getSessionId(): string;
     getMessages(): Message[];

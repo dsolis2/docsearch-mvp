@@ -296,7 +296,8 @@ export class RAGMessageList extends HTMLElement {
       // Emit event to show citations
       const event = new CustomEvent('rag-citations-received', {
         detail: { citations },
-        bubbles: true
+        bubbles: true,
+        composed: true  // Allow event to cross shadow DOM boundaries
       });
       this.dispatchEvent(event);
     });
@@ -314,8 +315,12 @@ export class RAGMessageList extends HTMLElement {
   
   // Public API methods
   public addMessage(message: Message) {
+    console.log('RAGMessageList: Adding message:', message);
+    console.log('RAGMessageList: Current messages count:', this.messages.length);
     this.messages.push(message);
+    console.log('RAGMessageList: New messages count:', this.messages.length);
     this.renderMessages();
+    console.log('RAGMessageList: Messages rendered');
   }
   
   public updateMessage(updatedMessage: Message) {
@@ -342,21 +347,62 @@ export class RAGMessageList extends HTMLElement {
   }
   
   public streamMessageUpdate(messageId: string, contentDelta: string) {
+    console.log('RAGMessageList: streamMessageUpdate called with:', messageId, contentDelta);
+    console.log('RAGMessageList: Current messages in list:', this.messages.map(m => ({ id: m.id, content: m.content.substring(0, 50), role: m.role })));
+    console.log('RAGMessageList: Looking for message ID:', messageId);
+    console.log('RAGMessageList: Available IDs:', this.messages.map(m => m.id));
     const message = this.messages.find(m => m.id === messageId);
+    console.log('RAGMessageList: Found message:', message);
     if (message) {
-      message.content += contentDelta;
+      // Only accumulate if message doesn't already contain this chunk
+      const newContent = message.content + contentDelta;
+      message.content = newContent;
+      console.log('RAGMessageList: Updated message content to:', message.content.substring(0, 100) + '...');
       
       // Update the content element directly for smooth streaming
       const messageElement = this._shadowRoot.querySelector(`[data-message-id="${messageId}"] .message__content`);
+      console.log('RAGMessageList: Found DOM element:', !!messageElement);
       if (messageElement) {
         messageElement.innerHTML = this.formatMessageContent(message.content);
+        console.log('RAGMessageList: Updated DOM element content');
+      } else {
+        console.warn('RAGMessageList: Could not find DOM element for message ID:', messageId);
       }
       
       // Ensure we stay scrolled to bottom during streaming
       this.scrollToBottom();
+    } else {
+      console.warn('RAGMessageList: Could not find message with ID:', messageId);
+    }
+  }
+  
+  // Alias for streamMessageUpdate to match the interface
+  public updateStreamingMessage(messageId: string, contentDelta: string) {
+    this.streamMessageUpdate(messageId, contentDelta);
+  }
+  
+  public completeMessage(messageId: string) {
+    const message = this.messages.find(m => m.id === messageId);
+    if (message) {
+      message.status = 'completed';
+      
+      // Update the message element
+      const messageElement = this._shadowRoot.querySelector(`[data-message-id="${messageId}"]`);
+      if (messageElement) {
+        messageElement.classList.remove('message--streaming');
+        messageElement.classList.add('message--completed');
+        
+        // Update status text
+        const statusElement = messageElement.querySelector('.message__status');
+        if (statusElement) {
+          statusElement.textContent = '';
+        }
+      }
     }
   }
 }
 
 // Register the custom element
-customElements.define('rag-message-list', RAGMessageList);
+if (!customElements.get('rag-message-list')) {
+  customElements.define('rag-message-list', RAGMessageList);
+}

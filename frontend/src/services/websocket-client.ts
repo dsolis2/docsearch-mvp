@@ -99,7 +99,9 @@ export class WebSocketClient {
         data
       };
       
-      this.ws.send(JSON.stringify(message));
+      const jsonMessage = JSON.stringify(message);
+      console.log('WebSocketClient: Sending JSON:', jsonMessage);
+      this.ws.send(jsonMessage);
       return true;
     } catch (error) {
       console.error('Failed to send WebSocket message:', error);
@@ -108,16 +110,19 @@ export class WebSocketClient {
   }
 
   public sendChatMessage(message: string, sessionId?: string): boolean {
-    return this.sendMessage('chat_message', {
+    const data = {
       message,
       sessionId: sessionId || this.stateManager.getCurrentSession()?.id,
       timestamp: Date.now()
-    });
+    };
+    console.log('WebSocketClient: Sending chat message:', data);
+    return this.sendMessage('chat_message', data);
   }
 
   private handleMessage(rawData: string): void {
     try {
       const message: WebSocketMessage = JSON.parse(rawData);
+      console.log('WebSocketClient: Received message:', message.type, message.data);
       
       switch (message.type) {
         case 'connection_status':
@@ -131,6 +136,10 @@ export class WebSocketClient {
           
         case 'typing_start':
           this.handleMessageStart(message.data);
+          break;
+          
+        case 'typing_stop':
+          this.handleTypingStop(message.data);
           break;
           
         case 'message_delta':
@@ -170,16 +179,26 @@ export class WebSocketClient {
     
     this.emit('messageStart', { messageId: message.id, ...data });
   }
+  
+  private handleTypingStop(data: any): void {
+    console.log('WebSocketClient: Typing stopped:', data);
+    this.emit('typingStop', data);
+  }
 
   private handleMessageChunk(data: any): void {
+    console.log('WebSocketClient: handleMessageChunk called with:', data);
     const lastMessage = this.stateManager.getLastMessage();
+    console.log('WebSocketClient: lastMessage:', lastMessage);
     if (lastMessage && lastMessage.role === 'assistant' && lastMessage.isStreaming) {
       const updatedContent = (lastMessage.content || '') + (data.content || '');
+      console.log('WebSocketClient: Updating content to:', updatedContent);
       this.stateManager.updateMessage(lastMessage.id, { 
         content: updatedContent,
         isStreaming: true
       });
       this.emit('messageChunk', { messageId: lastMessage.id, chunk: data.content });
+    } else {
+      console.warn('WebSocketClient: No valid assistant message to update');
     }
   }
 

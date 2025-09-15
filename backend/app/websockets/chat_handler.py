@@ -53,8 +53,9 @@ class ChatWebSocketHandler:
             return
         
         try:
-            # Extract message content
-            message_content = data.get("message", "").strip()
+            # Extract message content from the data payload
+            message_data = data.get("data", {})
+            message_content = message_data.get("message", "").strip()
             if not message_content:
                 await self.send_error("Message content cannot be empty")
                 return
@@ -63,12 +64,12 @@ class ChatWebSocketHandler:
             chat_request = ChatRequest(
                 message=message_content,
                 session_id=self.session_id,
-                model=data.get("model"),
-                provider=data.get("provider"),
-                max_tokens=data.get("max_tokens"),
-                temperature=data.get("temperature"),
-                stream=data.get("stream", True),
-                include_citations=data.get("include_citations", True)
+                model=message_data.get("model"),
+                provider=message_data.get("provider"),
+                max_tokens=message_data.get("max_tokens"),
+                temperature=message_data.get("temperature"),
+                stream=message_data.get("stream", True),
+                include_citations=message_data.get("include_citations", True)
             )
             
             # Process the chat request
@@ -138,7 +139,7 @@ class ChatWebSocketHandler:
             
             # Get conversation history
             session = session_manager.get_session(self.session_id)
-            messages = session.get_messages() if session else []
+            messages = session.messages if session else []
             
             # Convert session messages to chat messages for LLM
             chat_messages = [
@@ -228,7 +229,12 @@ class ChatWebSocketHandler:
         
         except Exception as e:
             logger.error(f"Error in RAG processing: {e}", exc_info=True)
-            await self.send_error(f"RAG processing failed: {str(e)}")
+            # Fallback to simulation if RAG fails
+            try:
+                await self.simulate_response(message_id, request.message)
+            except Exception as sim_e:
+                logger.error(f"Simulation also failed: {sim_e}", exc_info=True)
+                await self.send_error(f"RAG processing failed: {str(e)}")
     
     async def simulate_response(self, message_id: str, user_message: str) -> None:
         """Fallback simulation if RAG fails."""

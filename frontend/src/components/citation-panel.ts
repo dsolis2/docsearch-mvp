@@ -397,7 +397,8 @@ export class RAGCitationPanel extends HTMLElement {
     // Emit event for analytics/tracking
     const event = new CustomEvent('rag-citation-clicked', {
       detail: { citation, index },
-      bubbles: true
+      bubbles: true,
+      composed: true
     });
     this.dispatchEvent(event);
   }
@@ -436,7 +437,8 @@ export class RAGCitationPanel extends HTMLElement {
     
     // Emit show event
     const event = new CustomEvent('rag-citation-panel-show', {
-      bubbles: true
+      bubbles: true,
+      composed: true
     });
     this.dispatchEvent(event);
   }
@@ -447,7 +449,8 @@ export class RAGCitationPanel extends HTMLElement {
     
     // Emit hide event
     const event = new CustomEvent('rag-citation-panel-hide', {
-      bubbles: true
+      bubbles: true,
+      composed: true
     });
     this.dispatchEvent(event);
   }
@@ -470,4 +473,6 @@ export class RAGCitationPanel extends HTMLElement {
 }
 
 // Register the custom element
-customElements.define('rag-citation-panel', RAGCitationPanel);
+if (!customElements.get('rag-citation-panel')) {
+  customElements.define('rag-citation-panel', RAGCitationPanel);
+}
